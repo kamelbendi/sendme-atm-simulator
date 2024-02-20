@@ -1,18 +1,60 @@
 const readlineSync = require('readline-sync');
+const axios = require('axios');
+const { apiUrl } = require('./api-urls');
 
-// Initial balance
-let balance = 1000;
+
 
 function displayMenu() {
-  console.log('\nATM Simulator');
+  console.log('\n ----- ATM Simulator -------------');
   console.log('1. Check Balance');
   console.log('2. Withdraw');
   console.log('3. Deposit');
   console.log('4. Exit');
 }
 
-function checkBalance() {
-  console.log(`Current Balance: ${balance} PLN`);
+async function checkBalance() {
+  let cardNumber, pin, choice;
+  do {
+    cardNumber = readlineSync.question('Enter your card number: (type "exit" to quit)  ');
+    if (cardNumber === 'exit') {
+      startATM();
+    }
+
+    if (cardNumber.length !== 16) {
+      console.log('Invalid card number. Please enter a 16-digit card number.');
+    }
+
+  } while (cardNumber.length !== 16);
+
+  do {
+    pin = readlineSync.question('Enter your PIN: (type "exit" to quit): ');
+
+    if (pin === 'exit') {
+      startATM();
+    }
+
+    if (pin.length !== 6) {
+      console.log('Invalid PIN. Please enter a 6-digit PIN.');
+    }
+
+  } while (pin.length !== 6);
+  
+  await axios.post(apiUrl.getBalance, { cardNumber, pin })
+    .then(response => {
+      console.log(`Your balance is: $${response.data.balance}`);
+    })
+    .catch(error => {
+      console.log('Error fetching balance. Please try again later.');
+      
+    }
+  );
+    do {
+      choice = readlineSync.question('type: type "exit" to quit: ');
+      if (choice === 'exit') {
+        startATM();
+      }
+
+    } while (choice !== 'exit');
 }
 
 function withdraw() {
@@ -57,7 +99,7 @@ function startATM() {
       default:
         console.log('Invalid choice. Please enter a number between 1 and 4.');
     }
-  } while (choice !== '4');
+  } while (parseInt(choice) && parseInt(choice) > 5);
 }
 
 startATM();
