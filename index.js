@@ -2,8 +2,6 @@ const readlineSync = require('readline-sync');
 const axios = require('axios');
 const { apiUrl } = require('./api-urls');
 
-
-
 function displayMenu() {
   console.log('\n ----- ATM Simulator -------------');
   console.log('1. Check Balance');
@@ -45,7 +43,6 @@ async function checkBalance() {
     })
     .catch(error => {
       console.log('Error fetching balance. Please try again later.');
-      
     }
   );
     do {
@@ -56,15 +53,58 @@ async function checkBalance() {
 
     } while (choice !== 'exit');
 }
+// ---------------------------WITHDRAW--------------------------------
+async function withdraw() {
+  let cardNumber, pin, amount, choice;
+  do {
+    cardNumber = readlineSync.question('Enter your card number: (type "exit" to quit)  ');
+    if (cardNumber === 'exit') {
+      startATM();
+    }
 
-function withdraw() {
-  const amount = parseFloat(readlineSync.question('Enter withdrawal amount: PLN'));
-  if (isNaN(amount) || amount <= 0 || amount > balance) {
-    console.log('Invalid withdrawal amount.');
-  } else {
-    balance -= amount;
-    console.log(`Withdrawal successful. Remaining Balance: $${balance}`);
-  }
+    if (cardNumber.length !== 16) {
+      console.log('Invalid card number. Please enter a 16-digit card number.');
+    }
+
+  } while (cardNumber.length !== 16);
+
+  do {
+    pin = readlineSync.question('Enter your PIN: (type "exit" to quit): ');
+
+    if (pin === 'exit') {
+      startATM();
+    }
+
+    if (pin.length !== 6) {
+      console.log('Invalid PIN. Please enter a 6-digit PIN.');
+    }
+
+  } while (pin.length !== 6);
+
+  do {
+    amount = parseFloat(readlineSync.question('Enter withdrawal amount: PLN '));
+    if (isNaN(amount) || amount <= 0) {
+      console.log('Invalid withdrawal amount.');
+    }
+  } while (isNaN(amount) || amount <= 0);
+
+  await axios.post(apiUrl.withdraw, { cardNumber, pin, amount })
+    .then(response => {
+      console.log(`You have withdrawn: $${amount}. New Balance: $${response.data.balance}`);
+    })
+    .catch(error => {
+      console.log('Error withdrawing amount. Please try again later.');
+    }
+  );
+  
+    do {
+      choice = readlineSync.question('type: type "exit" to quit: ');
+      if (choice === 'exit') {
+        startATM();
+      }
+
+    } while (choice !== 'exit');
+
 }
 
 function deposit() {
