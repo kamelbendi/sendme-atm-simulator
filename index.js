@@ -96,7 +96,7 @@ async function withdraw() {
       console.log('Error withdrawing amount. Please try again later.');
     }
   );
-  
+
     do {
       choice = readlineSync.question('type: type "exit" to quit: ');
       if (choice === 'exit') {
@@ -107,14 +107,56 @@ async function withdraw() {
 
 }
 
-function deposit() {
-  const amount = parseFloat(readlineSync.question('Enter deposit amount: PLN '));
-  if (isNaN(amount) || amount <= 0) {
-    console.log('Invalid deposit amount.');
-  } else {
-    balance += amount;
-    console.log(`Deposit successful. New Balance: $${balance}`);
-  }
+async function deposit() {
+  let cardNumber, pin, amount, choice;
+  do {
+    cardNumber = readlineSync.question('Enter your card number: (type "exit" to quit)  ');
+    if (cardNumber === 'exit') {
+      startATM();
+    }
+
+    if (cardNumber.length !== 16) {
+      console.log('Invalid card number. Please enter a 16-digit card number.');
+    }
+
+  } while (cardNumber.length !== 16);
+
+  do {
+    pin = readlineSync.question('Enter your PIN: (type "exit" to quit): ');
+
+    if (pin === 'exit') {
+      startATM();
+    }
+
+    if (pin.length !== 6) {
+      console.log('Invalid PIN. Please enter a 6-digit PIN.');
+    }
+
+  } while (pin.length !== 6);
+
+  do {
+    amount = parseFloat(readlineSync.question('Enter deposit amount: PLN '));
+    if (isNaN(amount) || amount <= 0) {
+      console.log('Invalid deposit amount.');
+    }
+  } while (isNaN(amount) || amount <= 0);
+
+  await axios.post(apiUrl.deposit, { cardNumber, pin, amount })
+    .then(response => {
+      console.log(`You have deposited: $${amount}. New Balance: $${response.data.balance}`);
+    })
+    .catch(error => {
+      console.log('Error depositing amount. Please try again later.');
+    }
+  );
+
+    do {
+      choice = readlineSync.question('type: type "exit" to quit: ');
+      if (choice === 'exit') {
+        startATM();
+      }
+
+    } while (choice !== 'exit');
 }
 
 function startATM() {
