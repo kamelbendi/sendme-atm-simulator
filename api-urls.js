@@ -1,5 +1,5 @@
 exports.apiUrl = {
-    getBalance: 'http://localhost:3000/atm-check-balance',
-    withdraw: 'http://localhost:3000/atm-withdraw',
-    deposit: 'http://localhost:3000/atm-deposit',
+    getBalance: 'https://sendme-node.onrender.com/atm-check-balance',
+    withdraw: 'https://sendme-node.onrender.com/atm-withdraw',
+    deposit: 'https://sendme-node.onrender.com/atm-deposit',
 };
